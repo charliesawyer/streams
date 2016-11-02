@@ -10,22 +10,20 @@
        (re-seq  #"[-A-Za-z']+")
        (map string/lower-case)))
 
-(defn count-words
-  "Count words in FILE returning a map {word {file count} ...}"
-  [file]
-  (->> file clean-words
-       frequencies
-       (map (fn [[k v]] [k {file v}]))
-       (into {})))
+(defn frob-with
+  "FROB words in FILE and return a map {word {file [indexes ...]}}.
+  Where (frob words) returns the sequence of maps {word frobbed}."
+  [frob]
+  (fn [file] (->> file clean-words frob
+                  (map (fn [[k v]] [k {file v}]))
+                  (into {}))))
 
 (defn index-words
-  "Index words in FILE returning a map {word {file [indexes ...]}}"
-  [file]
-  (->> file clean-words
+  "Index WORDS returning a map {word [index ...]}"
+  [words]
+  (->> words
        (map (fn [index word] {word [index]}) (range))
-       (reduce (partial merge-with into))
-       (map (fn [[k v]] [k {file v}]))
-       (into {})))
+       (reduce (partial merge-with into))))
 
 (defn collate
   "Collate and sort the result of applying MAP-WORDS to FILES."
@@ -36,8 +34,9 @@
        (sort-by key)))
 
 (defn -main [& args]
-  (pprint
-   (if (seq args)
-     {:counted (collate count-words args)
-      :indexed (collate index-words args)}
-     "Usage: streams file [file ...]")))
+  (pprint (if (seq args)
+            {:counted (collate (frob-with frequencies) args)
+             :indexed (collate (frob-with index-words) args)}
+            "Usage: streams file [file ...]")))
+
+;; (-main "child.txt" "contrary.txt" "mary.txt" "row.txt")
