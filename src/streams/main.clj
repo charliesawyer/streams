@@ -26,17 +26,15 @@
        (reduce (partial merge-with into))))
 
 (defn collate
-  "Collate and sort the result of applying MAP-WORDS to FILES."
-  [map-words files]
+  "Collate and sort the result of FROBbing words in FILES."
+  [frob files]
   (->> files
-       (map map-words)
+       (map (frob-with frob))
        (reduce (partial merge-with merge))
        (sort-by key)))
 
 (defn -main [& args]
   (pprint (if (seq args)
-            {:counted (collate (frob-with frequencies) args)
-             :indexed (collate (frob-with index-words) args)}
+            {:counted (collate frequencies args)
+             :indexed (collate index-words args)}
             "Usage: streams file [file ...]")))
-
-;; (-main "child.txt" "contrary.txt" "mary.txt" "row.txt")
