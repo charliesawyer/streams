@@ -40,10 +40,9 @@
     (pprint {:counted (collate count-words args)
              :indexed (collate index-words args)})
     (println
-     (string/join
-      \newline
-      ["Usage: streams file [file ...]"
-       "Try: streams *.txt"]))))
+     (string/join \newline
+                  ["Usage: streams file [file ...]"
+                   "Try: streams *.txt"]))))
 
 (comment
   "Result of: ./streams child.txt contrary.txt mary.txt row.txt"
