@@ -1,13 +1,30 @@
 (ns streams.main
-  (:require [clojure.pprint :refer [pprint]]
+  (:require [clojure.java.io :as io]
+            [clojure.pprint :refer [pprint]]
             [clojure.string :as string])
   (:gen-class))
 
+(defn char-seq
+  "A lazy sequence of characters from READER."
+  [reader]
+  (let [c (. reader read)]
+    (if (>= c 0)
+      (cons c (lazy-seq (char-seq reader))))))
+
+(defn word-seq
+  "A lazy sequence of words from READER."
+  [reader]
+  (letfn [(alpha? [c] (Character/isAlphabetic c))
+          (word? [w] (alpha? (first w)))
+          (gather [ints] (apply str (map char ints)))]
+    (map gather (filter word? (partition-by alpha? (char-seq reader))))))
+
 (defn clean-words
-  "Return a sequence of lower-cased words in FILE."
+  "A lazy sequence of lower-cased words in FILE."
   [file]
-  (->> file slurp
-       (re-seq  #"[-A-Za-z']+")
+  (->> file
+       io/reader
+       word-seq
        (map string/lower-case)))
 
 (defn count-words
