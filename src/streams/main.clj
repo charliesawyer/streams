@@ -17,21 +17,21 @@
   (letfn [(alpha? [c] (Character/isAlphabetic c))
           (word? [w] (alpha? (first w)))
           (gather [ints] (apply str (map char ints)))]
-    (map gather (filter word? (partition-by alpha? (char-seq reader))))))
+    (->> reader char-seq
+         (partition-by alpha?)
+         (filter word?)
+         (map gather))))
 
 (defn clean-words
   "A lazy sequence of lower-cased words in FILE."
   [file]
-  (->> file
-       io/reader
-       word-seq
+  (->> file io/reader word-seq
        (map string/lower-case)))
 
 (defn count-words
   "Count words in FILE returning a map {word {file count} ...}"
   [file]
-  (->> file clean-words
-       frequencies
+  (->> file clean-words frequencies
        (map (fn [[k v]] [k {file v}]))
        (into {})))
 
