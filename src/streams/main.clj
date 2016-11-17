@@ -4,12 +4,12 @@
             [clojure.string :as string])
   (:gen-class))
 
-(defn char-seq
-  "A lazy sequence of characters from READER."
+(defn byte-seq
+  "A lazy sequence of bytes from READER."
   [reader]
-  (let [c (. reader read)]
-    (if (>= c 0)
-      (cons c (lazy-seq (char-seq reader))))))
+  (let [b (. reader read)]
+    (if (>= b 0)
+      (cons b (lazy-seq (byte-seq reader))))))
 
 (defn word-seq
   "A lazy sequence of words from READER."
@@ -17,7 +17,7 @@
   (letfn [(alpha? [c] (Character/isAlphabetic c))
           (word? [w] (alpha? (first w)))
           (gather [ints] (apply str (map char ints)))]
-    (->> reader char-seq
+    (->> reader byte-seq
          (partition-by alpha?)
          (filter word?)
          (map gather))))
