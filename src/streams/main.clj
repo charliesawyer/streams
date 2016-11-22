@@ -15,7 +15,7 @@
   "A lazy sequence of words from READER."
   [reader]
   (letfn [(alpha? [c] (Character/isAlphabetic c))
-          (word? [w] (alpha? (first w)))
+          (word? [[w & ord]] (alpha? w))
           (gather [ints] (apply str (map char ints)))]
     (->> reader byte-seq
          (partition-by alpha?)
@@ -59,5 +59,5 @@
                    "Try: streams *.txt"]))))
 
 (comment
-  
+  (-main "child.txt" "contrary.txt" "mary.txt" "row.txt")  
   )
