@@ -23,7 +23,7 @@
          (map gather))))
 
 (defn index-a-file
-  "Index words in FILE returning a map {word {file [indexes ...]}}"
+  "Index words in FILE returning a map {word {file [locations ...]}}"
   [file]
   (->> file io/reader word-seq
        (map string/lower-case)
@@ -41,12 +41,11 @@
        (sort-by key)))
 
 (defn count-words
+  "For each word in INDEX, count its locations from each file."
   [index]
-  (letfn [(count-locs [locs]
-            (zipmap (keys locs)
-                    (map count (vals locs))))]
-    (for [[word locs] index]
-      [word (count-locs locs)])))
+  (for [[word locs] index]
+    [word (zipmap (keys locs)
+                  (map count (vals locs)))]))
 
 (defn -main [& args]
   (pprint
@@ -57,7 +56,3 @@
      (string/join \newline
                   ["Usage: streams file [file ...]"
                    "Try: streams *.txt"]))))
-
-(comment
-  (-main "child.txt" "contrary.txt" "mary.txt" "row.txt")  
-  )
