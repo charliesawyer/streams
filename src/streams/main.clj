@@ -24,9 +24,9 @@
        (into [])))
 
 (defn count-words
-  "For each word in INDEX, count its locations in each file."
-  [index]
-  (into [] (for [[word locations] index]
+  "For each word in INDEXED, count its locations in each file."
+  [indexed]
+  (into [] (for [[word locations] indexed]
              [word (zipmap (keys locations)
                            (map count (vals locations)))])))
 
@@ -38,9 +38,3 @@
      (let [indexed (index-the-files args)]
        {:counted (count-words indexed)
         :indexed indexed}))))
-
-(def indexed
-  (index-the-files
-   ["child.txt" "contrary.txt" "mary.txt" "row.txt"]))
-
-(def counted (count-words indexed))
