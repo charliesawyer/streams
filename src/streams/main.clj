@@ -1,31 +1,13 @@
 (ns streams.main
-  (:require [clojure.java.io :as io]
-            [clojure.pprint :refer [pprint]]
+  (:require [clojure.pprint :refer [pprint]]
             [clojure.string :as string])
   (:gen-class))
-
-(defn byte-seq
-  "A lazy sequence of bytes from READER."
-  [reader]
-  (let [b (. reader read)]
-    (if (>= b 0)
-      (cons b (lazy-seq (byte-seq reader))))))
-
-(defn word-seq
-  "A lazy sequence of words from READER."
-  [reader]
-  (letfn [(alpha? [c] (Character/isAlphabetic c))
-          (word? [[w & ord]] (alpha? w))
-          (gather [ints] (apply str (map char ints)))]
-    (->> reader byte-seq
-         (partition-by alpha?)
-         (filter word?)
-         (map gather))))
 
 (defn index-a-file
   "Index words in FILE returning a map {word {file [locations ...]}}"
   [file]
-  (->> file io/reader word-seq
+  (->> file slurp
+       (re-seq #"\w+")
        (map string/lower-case)
        (map (fn [index word] {word [index]}) (range))
        (reduce (partial merge-with into))
@@ -42,7 +24,7 @@
        (into [])))
 
 (defn count-words
-  "For each word in INDEX, count its locations from each file."
+  "For each word in INDEX, count its locations in each file."
   [index]
   (into [] (for [[word locations] index]
              [word (zipmap (keys locations)
@@ -51,9 +33,9 @@
 (defn -main [& args]
   (pprint
    (if (seq args)
-     (let [index (index-the-files args)]
-       {:counted (count-words index)
-        :indexed index})
+     (let [indexed (index-the-files args)]
+       {:counted (count-words indexed)
+        :indexed indexed})
      (string/join \newline
                   ["Usage: streams file [file ...]"
                    "Try: streams *.txt"]))))
