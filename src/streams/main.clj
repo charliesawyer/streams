@@ -32,13 +32,12 @@
 
 (defn -main [& args]
   (pprint
-   (if (seq args)
+   (if (empty? args)
+     (string/join \newline ["Usage: streams file [file ...]"
+                            "Try: streams *.txt"])
      (let [indexed (index-the-files args)]
        {:counted (count-words indexed)
-        :indexed indexed})
-     (string/join \newline
-                  ["Usage: streams file [file ...]"
-                   "Try: streams *.txt"]))))
+        :indexed indexed}))))
 
 (def indexed
   (index-the-files
