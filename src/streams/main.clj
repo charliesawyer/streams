@@ -38,14 +38,15 @@
   (->> files
        (map index-a-file)
        (reduce (partial merge-with merge))
-       (sort-by key)))
+       (sort-by key)
+       (into [])))
 
 (defn count-words
   "For each word in INDEX, count its locations from each file."
   [index]
-  (for [[word locs] index]
-    [word (zipmap (keys locs)
-                  (map count (vals locs)))]))
+  (into [] (for [[word locations] index]
+             [word (zipmap (keys locations)
+                           (map count (vals locations)))])))
 
 (defn -main [& args]
   (pprint
@@ -56,3 +57,9 @@
      (string/join \newline
                   ["Usage: streams file [file ...]"
                    "Try: streams *.txt"]))))
+
+(def indexed
+  (index-the-files
+   ["child.txt" "contrary.txt" "mary.txt" "row.txt"]))
+
+(def counted (count-words indexed))
