@@ -1,7 +1,26 @@
 (ns streams.main
-  (:require [clojure.pprint :refer [pprint]]
+  (:require [clojure.java.io :as io]
+            [clojure.pprint :refer [pprint]]
             [clojure.string :as string])
   (:gen-class))
+
+(defn byte-seq
+  "A lazy sequence of bytes from READER."
+  [reader]
+  (let [b (. reader read)]
+    (if (>= b 0)
+      (cons b (lazy-seq (byte-seq reader))))))
+
+(defn word-seq
+  "A lazy sequence of words from READER."
+  [reader]
+  (letfn [(alpha? [c] (Character/isAlphabetic c))
+          (word? [[w & ord]] (alpha? w))
+          (gather [ints] (apply str (map char ints)))]
+    (->> reader byte-seq
+         (partition-by alpha?)
+         (filter word?)
+         (map gather))))
 
 (defn index-a-file
   "Index words in FILE returning a map {word {file [locations ...]}}"
