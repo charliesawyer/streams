@@ -38,3 +38,7 @@
      (let [indexed (index-the-files args)]
        {:counted (count-words indexed)
         :indexed indexed}))))
+
+(comment
+  (-main "child.txt" "contrary.txt" "mary.txt" "row.txt")
+  )
