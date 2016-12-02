@@ -6,13 +6,13 @@
 (defn index-a-file
   "Index words in FILE returning a map {word {file [locations ...]}}"
   [file]
-  (->> file slurp
-       (re-seq #"\w+")
-       (map string/lower-case)
-       (map (fn [index word] {word [index]}) (range))
-       (reduce (partial merge-with into))
-       (map (fn [[k v]] [k {file v}]))
-       (into {})))
+  (with-open [reader (io/reader file)]
+    (->> reader word-seq
+         (map string/lower-case)
+         (map (fn [index word] {word [index]}) (range))
+         (reduce (partial merge-with into))
+         (map (fn [[k v]] [k {file v}]))
+         (into {}))))
 
 (defn index-the-files
   "Collate and sort the indexes of FILES."
